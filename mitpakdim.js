@@ -655,7 +655,7 @@
     };
 
     AgendaList.prototype.syncOptions = {
-      xxrepo: window.mit.agenda,
+      repo: window.mit.agenda,
       sync: root.JSONPCachableSync('agendas')
     };
 
