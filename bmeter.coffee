@@ -423,7 +423,7 @@ class root.NewbiesList extends root.CandidatesList
         @agendas_fetching = $.Deferred().resolve()
 
 class root.PartyDeclarationList extends root.NewbiesList
-    model: root.PartyDeclaration 
+    model: root.PartyDeclaration
     DECLARATION_PARTY_ID: "רשימת המפלגות"
     multiSync: [{
         url: root.NewbiesList::url
@@ -491,17 +491,17 @@ class root.CandidateView extends root.ListViewItem
     events:
         'click': (event) ->
             console.log 1
-            @trigger 'click', @model, @            
+            @trigger 'click', @model, @
             @model.trigger "select", @model
         'click .mdhk': (event) ->
             id = this.model.id
             weights = encode_weights root.lists.agendas.getWeights()
             window.location = 'madhak.html#'+id+'//'+weights
-            event.stopPropagation
+            event.stopPropagation()
 
 class root.PartyCandidateView extends root.CandidateView
     get_template: ->
-        $("#party_candidate_template").html()     
+        $("#party_candidate_template").html()
 
 class root.ListView extends root.TemplateView
     initialize: ->
@@ -669,7 +669,7 @@ class root.CandidateListView extends root.PartyFilteredListView
             do_sum = (memo, item) ->
                 memo += Math.abs item
             _.reduce(arr, do_sum, 0)
-        weight_sum = abs_sum(weights) 
+        weight_sum = abs_sum(weights)
         return if not weight_sum
 
         console.log "Weights: ", weights, weight_sum
@@ -958,7 +958,7 @@ class root.Router extends Backbone.Router
     MODE_PARTIES: 3
 
     routes:
-        '': 'parties'        
+        '': 'parties'
         'parties': 'parties'
         ':weights': 'parties'
 
@@ -976,7 +976,7 @@ class root.Router extends Backbone.Router
 
     parties: (weights) ->
         if weights = parse_weights(weights)
-            root.lists.agendas.resetWeights weights        
+            root.lists.agendas.resetWeights weights
         root.global.trigger 'change_party', undefined
         @setMode @MODE_PARTIES
 

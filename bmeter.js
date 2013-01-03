@@ -665,11 +665,16 @@
 
     AgendaList.prototype.resetWeights = function(weights) {
       var _this = this;
+      if (weights == null) {
+        weights = {};
+      }
       return this.done(function() {
         return _this.each(function(agenda, index) {
           var value;
           if (_.isNumber(value = weights[agenda.id])) {
             return agenda.set("uservalue", value);
+          } else {
+            return agenda.set("uservalue", 0);
           }
         });
       });
@@ -982,7 +987,7 @@
         id = this.model.id;
         weights = encode_weights(root.lists.agendas.getWeights());
         window.location = 'madhak.html#' + id + '//' + weights;
-        return event.stopPropagation;
+        return event.stopPropagation();
       }
     };
 
@@ -1788,6 +1793,10 @@
     };
 
     AppView.prototype.events = {
+      'click .clear_selection': function(event) {
+        root.lists.agendas.resetWeights();
+        return event.preventDefault();
+      },
       'click .fb_share': function(event) {
         return root.facebookShare(getShareLink(root.lists.agendas.getWeights()));
       },
