@@ -350,11 +350,13 @@ class root.AgendaList extends root.JSONPCollection
         repo: window.mit.agenda
         sync: root.JSONPCachableSync('agendas')
 
-    resetWeights: (weights) ->
+    resetWeights: (weights={}) ->
         @done =>
             @each (agenda, index) ->
                 if _.isNumber(value = weights[agenda.id])
                     agenda.set "uservalue", value
+                else
+                    agenda.set "uservalue", 0
 
     getWeights: ->
         weights = {}
@@ -897,6 +899,9 @@ class root.AppView extends Backbone.View
         delegator
 
     events:
+        'click .clear_selection': (event) ->
+            root.lists.agendas.resetWeights()
+            event.preventDefault()
         'click .fb_share': (event) ->
             root.facebookShare getShareLink root.lists.agendas.getWeights()
         'click .tweet_share': (event) ->
