@@ -323,7 +323,7 @@ class root.JSONPCollection extends root.PromisedCollection
     parse: (response, xhr) ->
         ret = response.objects
         _.each ret, (obj) ->
-            obj.id = parseInt obj.id
+            obj.id = parseInt obj.id, 10
         ret
 
 class root.PartyList extends root.JSONPCollection
@@ -340,6 +340,10 @@ class root.PartyList extends root.JSONPCollection
     initialize: ->
         super arguments...
         @agendas_fetching = $.Deferred().resolve()
+    parse: (data, xhr) ->
+        data.objects.map (obj) ->
+            obj.id = parseInt obj.id, 10
+            return obj
 
 class root.AgendaList extends root.JSONPCollection
     model: root.Agenda

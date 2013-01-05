@@ -338,6 +338,11 @@ class root.PartyList extends root.JSONPCollection
     initialize: ->
         super arguments...
         @agendas_fetching = $.Deferred().resolve()
+    parse: (data, xhr) ->
+        data.objects.map (obj) ->
+            obj.id = parseInt obj.id, 10
+            return obj
+
 
 class root.AgendaList extends root.JSONPCollection
     model: root.Agenda
@@ -433,7 +438,7 @@ class root.PartyDeclarationList extends root.NewbiesList
         ret = _.filter super(arguments...), (obj) =>
             not obj.party_name? or obj.party_name == @DECLARATION_PARTY_ID
         _.each ret, (obj) ->
-            obj.id = parseInt obj.id
+            obj.id = parseInt obj.id, 10
         ret
     initialize: ->
         super arguments...
