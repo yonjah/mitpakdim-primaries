@@ -35,13 +35,30 @@ parse_weights = (weights) ->
     if not _.isString weights
         return
     parsed = {}
-    _.each weights.split('i'), (item) ->
-        [key, value] = item.split('x')
-        parsed[Number(key)] = Number(value)
+    if weights.indexOf('x') >=0  #old weights format
+        _.each weights.split('i'), (item) ->
+            [key, value] = item.split('x')
+            parsed[Number(key)] = Number(value)
+    else 
+        len = weights.length;
+        if len % 4
+            return 
+        for i in [0..len-1] by 4
+            key = parseInt(weights.substring(i,i+2), 16)
+            value = parseInt(weights.substring(i+2,i+4), 16) - 100
+            parsed[key] = value
     return parsed
 
 encode_weights = (weights) ->
-    ("#{key}x#{value}" for key,value of weights).join('i')
+    resp = ''
+    for key, value of weights
+        if value
+            key = parseInt key, 10
+            value = parseInt value, 10
+            value += 100
+            resp += if key < 16 then '0' + key.toString(16) else key.toString(16)
+            resp += if value < 16 then '0' + value.toString(16) else value.toString(16)
+    resp
 
 ga =
     event: (args...) ->

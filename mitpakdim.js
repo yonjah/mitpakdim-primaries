@@ -47,30 +47,45 @@
   };
 
   parse_weights = function(weights) {
-    var parsed;
+    var i, key, len, parsed, value, _i, _ref;
     if (!_.isString(weights)) {
       return;
     }
     parsed = {};
-    _.each(weights.split('i'), function(item) {
-      var key, value, _ref;
-      _ref = item.split('x'), key = _ref[0], value = _ref[1];
-      return parsed[Number(key)] = Number(value);
-    });
+    if (weights.indexOf('x') >= 0) {
+      _.each(weights.split('i'), function(item) {
+        var key, value, _ref;
+        _ref = item.split('x'), key = _ref[0], value = _ref[1];
+        return parsed[Number(key)] = Number(value);
+      });
+    } else {
+      len = weights.length;
+      if (len % 4) {
+        return;
+      }
+      for (i = _i = 0, _ref = len - 1; _i <= _ref; i = _i += 4) {
+        key = parseInt(weights.substring(i, i + 2), 16);
+        value = parseInt(weights.substring(i + 2, i + 4), 16) - 100;
+        parsed[key] = value;
+      }
+    }
     return parsed;
   };
 
   encode_weights = function(weights) {
-    var key, value;
-    return ((function() {
-      var _results;
-      _results = [];
-      for (key in weights) {
-        value = weights[key];
-        _results.push("" + key + "x" + value);
+    var key, resp, value;
+    resp = '';
+    for (key in weights) {
+      value = weights[key];
+      if (value) {
+        key = parseInt(key, 10);
+        value = parseInt(value, 10);
+        value += 100;
+        resp += key < 16 ? '0' + key.toString(16) : key.toString(16);
+        resp += value < 16 ? '0' + value.toString(16) : value.toString(16);
       }
-      return _results;
-    })()).join('i');
+    }
+    return resp;
   };
 
   ga = {
@@ -634,6 +649,13 @@
       return this.agendas_fetching = $.Deferred().resolve();
     };
 
+    PartyList.prototype.parse = function(data, xhr) {
+      return data.objects.map(function(obj) {
+        obj.id = parseInt(obj.id, 10);
+        return obj;
+      });
+    };
+
     return PartyList;
 
   })(root.JSONPCollection);
@@ -814,8 +836,7 @@
     __extends(PartyDeclarationList, _super);
 
     function PartyDeclarationList() {
-      this.parse = __bind(this.parse, this);
-      return PartyDeclarationList.__super__.constructor.apply(this, arguments);
+      this.parse = __bind(this.parse, this);      return PartyDeclarationList.__super__.constructor.apply(this, arguments);
     }
 
     PartyDeclarationList.prototype.model = root.PartyDeclaration;
@@ -838,10 +859,10 @@
       var ret,
         _this = this;
       ret = _.filter(PartyDeclarationList.__super__.parse.apply(this, arguments), function(obj) {
-        return !(obj.party_name != null) || obj.party_name === _this.DECLARATION_PARTY_ID;
+        return (obj.party_name == null) || obj.party_name === _this.DECLARATION_PARTY_ID;
       });
       _.each(ret, function(obj) {
-        return obj.id = parseInt(obj.id);
+        return obj.id = parseInt(obj.id, 10);
       });
       return ret;
     };
@@ -880,8 +901,7 @@
     __extends(TemplateView, _super);
 
     function TemplateView() {
-      this.render = __bind(this.render, this);
-      return TemplateView.__super__.constructor.apply(this, arguments);
+      this.render = __bind(this.render, this);      return TemplateView.__super__.constructor.apply(this, arguments);
     }
 
     TemplateView.prototype.template = function() {
@@ -933,9 +953,7 @@
 
     function CandidateView() {
       this.changeSelection = __bind(this.changeSelection, this);
-
-      this.render = __bind(this.render, this);
-      return CandidateView.__super__.constructor.apply(this, arguments);
+      this.render = __bind(this.render, this);      return CandidateView.__super__.constructor.apply(this, arguments);
     }
 
     CandidateView.prototype.className = "candidate_instance";
@@ -1003,13 +1021,9 @@
 
     function ListView() {
       this.itemEvent = __bind(this.itemEvent, this);
-
       this.initEmptyView = __bind(this.initEmptyView, this);
-
       this.addAll = __bind(this.addAll, this);
-
-      this.addOne = __bind(this.addOne, this);
-      return ListView.__super__.constructor.apply(this, arguments);
+      this.addOne = __bind(this.addOne, this);      return ListView.__super__.constructor.apply(this, arguments);
     }
 
     ListView.prototype.initialize = function() {
@@ -1068,8 +1082,7 @@
     __extends(DropdownItem, _super);
 
     function DropdownItem() {
-      this.render = __bind(this.render, this);
-      return DropdownItem.__super__.constructor.apply(this, arguments);
+      this.render = __bind(this.render, this);      return DropdownItem.__super__.constructor.apply(this, arguments);
     }
 
     DropdownItem.prototype.tagName = "option";
@@ -1093,8 +1106,7 @@
     __extends(DropdownContainer, _super);
 
     function DropdownContainer() {
-      this.initEmptyView = __bind(this.initEmptyView, this);
-      return DropdownContainer.__super__.constructor.apply(this, arguments);
+      this.initEmptyView = __bind(this.initEmptyView, this);      return DropdownContainer.__super__.constructor.apply(this, arguments);
     }
 
     DropdownContainer.prototype.tagName = "select";
@@ -1133,8 +1145,7 @@
     __extends(CurrentPartyView, _super);
 
     function CurrentPartyView() {
-      this.render = __bind(this.render, this);
-      return CurrentPartyView.__super__.constructor.apply(this, arguments);
+      this.render = __bind(this.render, this);      return CurrentPartyView.__super__.constructor.apply(this, arguments);
     }
 
     CurrentPartyView.prototype.el = ".current_party";
@@ -1154,8 +1165,7 @@
     __extends(CandidatesMultiView, _super);
 
     function CandidatesMultiView() {
-      this.propagate = __bind(this.propagate, this);
-      return CandidatesMultiView.__super__.constructor.apply(this, arguments);
+      this.propagate = __bind(this.propagate, this);      return CandidatesMultiView.__super__.constructor.apply(this, arguments);
     }
 
     CandidatesMultiView.prototype.initialize = function() {
@@ -1264,8 +1274,7 @@
     __extends(PartyFilteredListView, _super);
 
     function PartyFilteredListView() {
-      this.partyChange = __bind(this.partyChange, this);
-      return PartyFilteredListView.__super__.constructor.apply(this, arguments);
+      this.partyChange = __bind(this.partyChange, this);      return PartyFilteredListView.__super__.constructor.apply(this, arguments);
     }
 
     PartyFilteredListView.prototype.initialize = function() {
@@ -1288,7 +1297,7 @@
     PartyFilteredListView.prototype.partyChangeFilter = PartyFilteredListView.prototype.filterByParty;
 
     PartyFilteredListView.prototype.partyChange = function(party) {
-      if (!(party != null)) {
+      if (party == null) {
         return;
       }
       return this.collection.reset(this.partyChangeFilter(party));
@@ -1303,8 +1312,7 @@
     __extends(CandidateListView, _super);
 
     function CandidateListView() {
-      this.partyChange = __bind(this.partyChange, this);
-      return CandidateListView.__super__.constructor.apply(this, arguments);
+      this.partyChange = __bind(this.partyChange, this);      return CandidateListView.__super__.constructor.apply(this, arguments);
     }
 
     CandidateListView.prototype.options = {
@@ -1313,7 +1321,7 @@
 
     CandidateListView.prototype.partyChange = function(party) {
       CandidateListView.__super__.partyChange.apply(this, arguments);
-      if (!(party != null)) {
+      if (party == null) {
         return;
       }
       this.collection.fetchAgendas();
@@ -1373,8 +1381,7 @@
     __extends(PartyCandidatesListView, _super);
 
     function PartyCandidatesListView() {
-      this.partyChange = __bind(this.partyChange, this);
-      return PartyCandidatesListView.__super__.constructor.apply(this, arguments);
+      this.partyChange = __bind(this.partyChange, this);      return PartyCandidatesListView.__super__.constructor.apply(this, arguments);
     }
 
     PartyCandidatesListView.prototype.el = ".party_candidates_container .parties";
@@ -1400,8 +1407,7 @@
     __extends(AgendaListView, _super);
 
     function AgendaListView() {
-      this.changeModel = __bind(this.changeModel, this);
-      return AgendaListView.__super__.constructor.apply(this, arguments);
+      this.changeModel = __bind(this.changeModel, this);      return AgendaListView.__super__.constructor.apply(this, arguments);
     }
 
     AgendaListView.prototype.el = '.agendas';
@@ -1412,8 +1418,7 @@
         __extends(_Class, _super1);
 
         function _Class() {
-          this.onStop = __bind(this.onStop, this);
-          return _Class.__super__.constructor.apply(this, arguments);
+          this.onStop = __bind(this.onStop, this);          return _Class.__super__.constructor.apply(this, arguments);
         }
 
         _Class.prototype.className = "agenda_item";
@@ -1616,8 +1621,7 @@
     __extends(EntranceView, _super);
 
     function EntranceView() {
-      this.initialize = __bind(this.initialize, this);
-      return EntranceView.__super__.constructor.apply(this, arguments);
+      this.initialize = __bind(this.initialize, this);      return EntranceView.__super__.constructor.apply(this, arguments);
     }
 
     EntranceView.prototype.el = '.entrance_page';
@@ -1643,7 +1647,7 @@
       this.$el.on('click', '#party_selected', function() {
         var district, party, _ref;
         _ref = [_this.partyListView.current, _this.districtListView.current], party = _ref[0], district = _ref[1];
-        if (!((party != null ? party.id : void 0) != null)) {
+        if ((party != null ? party.id : void 0) == null) {
           return;
         }
         if (district.id) {
@@ -1687,11 +1691,8 @@
 
     function AppView() {
       this.updateSelectedCandidate = __bind(this.updateSelectedCandidate, this);
-
       this.calculate = __bind(this.calculate, this);
-
-      this.initialize = __bind(this.initialize, this);
-      return AppView.__super__.constructor.apply(this, arguments);
+      this.initialize = __bind(this.initialize, this);      return AppView.__super__.constructor.apply(this, arguments);
     }
 
     AppView.prototype.el = '#app_root';
